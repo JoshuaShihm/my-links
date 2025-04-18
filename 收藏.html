@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>我的网址收藏夹</title>
+    <style>
+        body {
+            font-family: '微软雅黑', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .add-form {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+        button {
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .category {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .category h2 {
+            color: #333;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .link-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        .link-item:hover {
+            background: #f8f9fa;
+        }
+        .link-item a {
+            color: #007bff;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 我的网址收藏夹</h1>
+        
+        <div class="add-form">
+            <input type="text" id="linkName" placeholder="网站名称">
+            <input type="url" id="linkUrl" placeholder="https://example.com">
+            <input type="text" id="linkCategory" placeholder="分类名称">
+            <button onclick="addLink()">➕ 添加链接</button>
+        </div>
+
+        <div id="categories" class="categories"></div>
+    </div>
+
+    <script>
+        // 初始化数据存储
+        let links = JSON.parse(localStorage.getItem('myLinks')) || [];
+
+        // 添加链接
+        function addLink() {
+            const name = document.getElementById('linkName').value;
+            const url = document.getElementById('linkUrl').value;
+            const category = document.getElementById('linkCategory').value;
+
+            if (name && url && category) {
+                links.push({
+                    name,
+                    url: url.startsWith('http') ? url : `https://${url}`,
+                    category,
+                    id: Date.now()
+                });
+                
+                localStorage.setItem('myLinks', JSON.stringify(links));
+                renderCategories();
+                clearForm();
+            } else {
+                alert('请填写所有字段');
+            }
+        }
+
+        // 渲染分类
+        function renderCategories() {
+            const categoriesDiv = document.getElementById('categories');
+            const categories = [...new Set(links.map(link => link.category))];
+            
+            categoriesDiv.innerHTML = categories.map(category => `
+                <div class="category">
+                    <h2>${category}</h2>
+                    ${links.filter(link => link.category === category).map(link => `
+                        <div class="link-item">
+                            <span>🔗</span>
+                            <a href="${link.url}" target="_blank">${link.name}</a>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        // 清空表单
+        function clearForm() {
+            document.getElementById('linkName').value = '';
+            document.getElementById('linkUrl').value = '';
+            document.getElementById('linkCategory').value = '';
+        }
+
+        // 初始化渲染
+        window.onload = renderCategories;
+    </script>
+</body>
+</html>
